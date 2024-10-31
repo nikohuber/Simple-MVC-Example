@@ -17,7 +17,8 @@
     "express": "^4.21.1",
     "express-handlebars": "^8.0.1",
     "mongoose": "^8.7.2",
-    "serve-favicon": "^2.5.0"
+    "serve-favicon": "^2.5.0",
+    "simple-mvc-example": "file:"
   },
   "devDependencies": {
     "eslint": "^8.57.1",
