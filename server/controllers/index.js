@@ -2,6 +2,7 @@
 const models = require('../models');
 
 const { Cat } = models;
+const { Dog } = models;
 
 const hostIndex = async (req, res) => {
   let name = 'unknown';
@@ -129,6 +130,72 @@ const notFound = (req, res) => {
   });
 };
 
+const setDogName = async (req, res) => {
+  if (!req.body.name || !req.body.age || !req.body.breed) {
+    return res.status(400).json({
+      error: 'name,breed and age are all required',
+    });
+  }
+
+  const dogData = {
+    name: req.body.name,
+    age: req.body.age,
+    breed: req.body.breed,
+  };
+
+  const newDog = new Dog(dogData);
+  console.log(newDog);
+
+  try {
+    await newDog.save();
+    return res.status(201).json({
+      name: req.body.name,
+      age: req.body.age,
+      breed: req.body.breed,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: 'failed to create dog' });
+  }
+};
+
+const updateDog = (inputName, res) => {
+  console.log(inputName);
+  const updatePromise = Dog.findOneAndUpdate({ name: inputName }, { $inc: { age: 1 } }, {
+    returnDocument: 'after',
+    sort: {
+      createdDate: 'descending',
+    },
+  }).lean().exec();
+
+  updatePromise.then((doc) => {
+    console.log(doc);
+  });
+
+  updatePromise.catch((err) => {
+    console.log(err);
+    return res.status(500).json({ error: 'Something went wrong' });
+  });
+};
+
+const searchDogName = async (req, res) => {
+  if (!req.query.name) {
+    return res.status(400).json({ error: 'Name is required to perform a search' });
+  }
+  try {
+    const doc = await Dog.findOne({ name: req.query.name }).select('name age breed').exec();
+
+    if (!doc) {
+      return res.status(404).json({ error: 'No dog found' });
+    }
+    updateDog(req.name);
+    return res.json({ name: doc.name, age: doc.age, breed: doc.breed });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: 'Something went wrong' });
+  }
+};
+
 module.exports = {
   index: hostIndex,
   page1: hostPage1,
@@ -136,7 +203,9 @@ module.exports = {
   page3: hostPage3,
   getName,
   setName,
+  setDogName,
   updateLast,
   searchName,
+  searchDogName,
   notFound,
 };

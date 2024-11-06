@@ -14,8 +14,10 @@ const app = express();
 
 app.use('/assets', express.static(path.resolve(`${__dirname}/../client/`)));
 
-const dbURI = process.env.MONGODB_URI || 'mongodb+srv://nrh9757:meow@meow.8f0mw.mongodb.net/simpleMVCExample';
-mongoose.connect(dbURI).catch((err) => {
+const dbURI = process.env.MONGODB_URI || 'mongodb+srv://nrh9757:meow@meow.8f0mw.mongodb.net/simpleMVCExample?retryWrites=true&w=majority';
+mongoose.connect(dbURI).then((instance) => {
+  console.log(`Mongoose loaded - version = ${instance.version}`);
+}).catch((err) => {
   if (err) {
     console.log('Could not connect to database');
     throw err;
